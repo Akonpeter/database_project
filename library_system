@@ -1,0 +1,102 @@
+import mysql.connector
+
+# Connect to your MySQL database
+def library_db ():
+    return mysql.connector.connect(
+        host="localhost",
+        user="root",        
+        password="Prizylink330@",  
+        database="library_db"     
+    )
+
+# Add a new book
+def add_book():
+    title = input("Enter book title: ")
+    author = input("Enter book author: ")
+    isbn = input("Enter book ISBN: ")
+
+    db = library_db()
+    cursor = db.cursor()
+    cursor.execute(
+        "INSERT INTO books (title, author, isbn) VALUES (%s, %s, %s)",
+        (title, author, isbn)
+    )
+    db.commit()
+    print(f" Book '{title}' added successfully!")
+    cursor.close()
+    db.close()
+
+# Search for a book
+def search_book():
+    keyword = input("Enter title keyword to search: ")
+
+    db = library_db()
+    cursor = db.cursor()
+    cursor.execute(
+        "SELECT * FROM books WHERE title LIKE %s",
+        ("%" + keyword + "%",)
+    )
+    results = cursor.fetchall()
+
+    if results:
+        print("\n📚 Books Found:")
+        for book in results:
+            print(f"ID: {book[0]} | Title: {book[1]} | Author: {book[2]} | ISBN: {book[3]}")
+    else:
+        print("❌ No books found with that title.")
+    cursor.close()
+    db.close()
+
+# List all books
+def list_books():
+    db = library_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM books")
+    results = cursor.fetchall()
+
+    print("\n📖 All Books in Library:")
+    for book in results:
+        print(f"ID: {book[0]} | Title: {book[1]} | Author: {book[2]} | ISBN: {book[3]}")
+    cursor.close()
+    db.close()
+
+# Delete a book (bonus)
+def delete_book():
+    book_id = input("Enter Book ID to delete: ")
+
+    db = library_db()
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM books WHERE id = %s", (book_id,))
+    db.commit()
+    print(f"🗑️ Book with ID {book_id} deleted.")
+    cursor.close()
+    db.close()
+
+# Main interactive menu
+def main():
+    while True:
+        print("\n📚 Library Management System")
+        print("1. Add Book")
+        print("2. Search Book")
+        print("3. List All Books")
+        print("4. Delete Book")
+        print("5. Exit")
+
+        choice = input("Enter your choice (1-5): ")
+
+        if choice == "1":
+            add_book()
+        elif choice == "2":
+            search_book()
+        elif choice == "3":
+            list_books()
+        elif choice == "4":
+            delete_book()
+        elif choice == "5":
+            print("👋 Exiting program...")
+            break
+        else:
+            print("❌ Invalid choice. Please select a valid option.")
+
+if __name__ == "__main__":
+    main()
